@@ -1,0 +1,42 @@
+name: Fortnightly Account Engagement Report
+
+on:
+  schedule:
+    # 1st of every month at 8:00 AM IST (2:30 AM UTC)
+    - cron: "30 2 1 * *"
+    # 15th of every month at 8:00 AM IST (2:30 AM UTC)
+    - cron: "30 2 15 * *"
+  workflow_dispatch:   # Allow manual trigger from GitHub UI
+
+jobs:
+  send-fortnightly-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Send fortnightly report
+        env:
+          SUPABASE_URL:        ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY:   ${{ secrets.SUPABASE_ANON_KEY }}
+          EMAILJS_SERVICE_ID:    ${{ secrets.EMAILJS_SERVICE_ID }}
+          EMAILJS_TEMPLATE_ID:   ${{ secrets.EMAILJS_TEMPLATE_ID }}
+          EMAILJS_PUBLIC_KEY:    ${{ secrets.EMAILJS_PUBLIC_KEY }}
+          EMAILJS_PRIVATE_KEY:   ${{ secrets.EMAILJS_PRIVATE_KEY }}
+          REPORT_OVERSEER_1:     ${{ secrets.REPORT_OVERSEER_1 }}
+          REPORT_OVERSEER_2:     ${{ secrets.REPORT_OVERSEER_2 }}
+          REPORT_MOHITH_EXTRA:   ${{ secrets.REPORT_MOHITH_EXTRA }}
+          REPORT_LEADER_HARSHA:  ${{ secrets.REPORT_LEADER_HARSHA }}
+          REPORT_LEADER_GOPAL:   ${{ secrets.REPORT_LEADER_GOPAL }}
+          REPORT_LEADER_MUKESH:  ${{ secrets.REPORT_LEADER_MUKESH }}
+          REPORT_LEADER_RAHUL:   ${{ secrets.REPORT_LEADER_RAHUL }}
+          REPORT_LEADER_ANNEKA:  ${{ secrets.REPORT_LEADER_ANNEKA }}
+          REPORT_LEADER_SONIA:   ${{ secrets.REPORT_LEADER_SONIA }}
+        run: node send-fortnightly-report.js
