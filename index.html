@@ -784,7 +784,7 @@ var TEAM_PASSWORD   = "MOAR2026";    // shared with all 8 team members — chang
 var SUPABASE_URL      = "https://capbtrnnjpcwguoaeagg.supabase.co";
 var SUPABASE_ANON_KEY = "sb_publishable_umIXcIKxrSKZeFk8sJiQ_w_mg9wT4_R";
 var ANTHROPIC_KEY     = "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";
-var dbOK = SUPABASE_URL !== "REPLACE_WITH_SUPABASE_URL";
+var dbOK = SUPABASE_URL !== "https://capbtrnnjpcwguoaeagg.supabase.co";
 
 // TEAM_OWNERS = the 7 deal owners (Niveditha oversees but doesn't own deals)
 var TEAM_OWNERS = [
@@ -1951,7 +1951,7 @@ function clearInputHistory() {
 async function parseAI() {
   var text = document.getElementById("ai-text").value.trim();
   if (!text) { toast("Please enter some text first",true); return; }
-  if (ANTHROPIC_KEY === "REPLACE_WITH_ANTHROPIC_KEY") { toast("Anthropic API key not configured",true); return; }
+  if (ANTHROPIC_KEY === "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") { toast("Anthropic API key not configured",true); return; }
   var btn = document.getElementById("ai-btn");
   btn.disabled = true; btn.textContent = "Parsing…";
   document.getElementById("ai-results").innerHTML = "<div style='font-size:12px;color:var(--mut);padding:12px;'>Analysing your notes…</div>";
