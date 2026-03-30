@@ -747,7 +747,7 @@ footer .f-link{color:var(--champ);cursor:pointer;text-decoration:none;}
       <div class="form-item"><label class="form-label">Tier</label>
         <select id="e-tier"><option value="Top 5">Top 5</option><option value="Next 5">Next 5</option></select>
       </div>
-      <div class="form-item"><label class="form-label">Account Owner</label><select id="e-owner"></select></div>
+      <div class="form-item"><label class="form-label">Account Owner</label><select id="e-owner"><option value="">— Select owner —</option></select></div>
       <div class="form-item full"><label class="form-label">Action Points</label><textarea id="e-action" placeholder="What needs to happen…"></textarea></div>
     </div>
     <div class="modal-btns">
@@ -2204,7 +2204,11 @@ function updateTime(id, week, val) {
   var v = Math.max(0, parseInt(val)||0);
   a["w"+week] = v;
   logActivity("Time updated — "+a.name+": Wk"+week+" = "+v+"m");
-  persist().then(function(){ render(); });
+  // Re-rank and update totals without re-rendering the whole table (avoids losing focus)
+  rankAccounts();
+  renderClientAnalytics();
+  renderDashboard();
+  persist();
 }
 
 function updateProspectOwner(id, newVal, el) {
@@ -2272,19 +2276,24 @@ function openEditModal(id, defaultTier) {
   editAccountId = id || null;
   document.getElementById("edit-modal-title").textContent = id ? "Edit Account" : "Add Account";
   document.getElementById("e-delete-btn").style.display = id ? "block" : "none";
-  if (id) {
-    var a = accounts.find(function(x){ return x.id===id; }); if (!a) return;
-    document.getElementById("e-name").value   = a.name||"";
-    document.getElementById("e-deal").value   = a.dealValue||"";
-    document.getElementById("e-tier").value   = a.tier||"Top 5";
-    document.getElementById("e-action").value = a.actionPoints||"";
-  } else {
-    document.getElementById("e-name").value   = "";
-    document.getElementById("e-deal").value   = "";
-    document.getElementById("e-tier").value   = defaultTier||"Top 5";
-    document.getElementById("e-action").value = "";
+  var a = id ? accounts.find(function(x){ return x.id===id; }) : null;
+  if (id && !a) return;
+  document.getElementById("e-name").value   = a ? a.name||""   : "";
+  document.getElementById("e-deal").value   = a ? a.dealValue||"" : "";
+  document.getElementById("e-tier").value   = a ? a.tier||"Top 5" : (defaultTier||"Top 5");
+  document.getElementById("e-action").value = a ? a.actionPoints||"" : "";
+  // Always populate owner dropdown fresh
+  var eOwner = document.getElementById("e-owner");
+  if (eOwner) {
+    var ownerOptions = "<option value=''>— Select owner —</option>";
+    for (var oi=0; oi<TEAM_OWNERS.length; oi++) {
+      var selected = (a && a.owner === TEAM_OWNERS[oi]) ? " selected" : "";
+      ownerOptions += "<option value='" + TEAM_OWNERS[oi] + "'" + selected + ">" + TEAM_OWNERS[oi] + "</option>";
+    }
+    eOwner.innerHTML = ownerOptions;
   }
   document.getElementById("edit-overlay").classList.add("open");
+  setTimeout(function(){ document.getElementById("e-name").focus(); }, 100);
 }
 function closeEditModal() { document.getElementById("edit-overlay").classList.remove("open"); editAccountId = null; }
 function saveAccount() {
